@@ -1,0 +1,106 @@
+* {
+    font-family: "Rubik", sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.5em;
+}
+
+#header {
+    margin-bottom: 20px;
+    padding-left: 5%;
+}
+
+#header h1{
+    margin-bottom: 20px;
+}
+
+.main-menu ul{
+    list-style: none;
+    display: flex;
+    gap: 5rem;
+}
+
+.main-menu a{
+    text-decoration: none;
+    font-size: 1.6rem;
+    color: black;
+}
+
+.main-menu a:hover {
+    color: rgb(255, 56, 12);
+    text-decoration: underline;
+}
+
+#main {
+    padding-left: 5%;
+    padding-right: 5%;
+    margin-bottom: 20px;
+}
+
+img{
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    margin-bottom: 20px;
+}
+
+section {
+    margin-bottom: 3rem;
+    font-size: 1.5rem;
+}
+
+section li {
+    margin-left: 1rem;
+}
+
+section h2 {
+    margin-bottom: 1rem;
+}
+
+table {
+    border-collapse: collapse;
+    width: 50%;
+    margin: 20px, 20px;
+}
+
+td, th {
+    border: 1px solid black;
+    padding: 1rem;
+    text-align: center;
+}
+
+tr:first-child {
+    font-weight: bold;
+}
+
+td:first-child {
+    width: 2rem;
+}
+
+#footer {
+    background-color: black;
+    color: white;
+}
+
+footer p {
+    padding-left: 5%;
+    padding-right: 5%;
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+
+footer a {
+    text-decoration: none;
+    color: white;
+}
+
+footer a:hover {
+    color: rgb(255, 56, 12);
+}
