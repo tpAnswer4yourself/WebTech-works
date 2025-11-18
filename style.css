@@ -1,0 +1,33 @@
+h1 {
+    text-align: center;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+}
+
+ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+li {
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid black;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+    font-weight: 600;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+li:hover {
+    background-color: rgb(200, 255, 200);
+}
