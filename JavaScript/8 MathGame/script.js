@@ -1,14 +1,22 @@
 const primer = document.querySelector('.math_primer');
 const input = document.querySelector('#example');
 const button = document.querySelector('.submit');
+
+const button_reset = document.querySelector('.reset');
+const button_exit = document.querySelector('.exit');
+
 const levelDisplay = document.querySelector('.level');
 const verify = document.querySelector('.verify');
+const timerDisplay = document.getElementById('timer');
 
 let taymer = 0;
 let questions_in_level = 0;
 let currentLevel = 1;
 let used_questions = new Set();
 time_to_next_question = 1000;
+
+let time_left = 120; // seconds
+let timerInterval = null; //для будущей остановки таймера
 
 let correct = 0;
 let wrong = 0;
@@ -22,14 +30,48 @@ function resetGame() {
     correct = 0;
     wrong = 0;
     currentAnswer = null;
+    stopTimer();
+    startTimer();
     viewQuestion();
 }
 
+function startTimer() {
+    if (currentLevel === 1) time_left = 60;  //время на первом уровне
+    else if (currentLevel === 2) time_left = 60; //время на втором уровне
+    else if (currentLevel === 3) time_left = 180; //время на третьем уровне
+
+    timerDisplay.textContent = time_left;
+
+    if (timerInterval != null) {
+        clearInterval(timerInterval);
+    }
+
+    //запуск нового таймера
+    timerInterval = setInterval(() => {
+        time_left--;
+        timerDisplay.textContent = time_left;
+        if (time_left <= 0) {
+            clearInterval(timerInterval);
+            verify.textContent = 'Time is up! Restarting...';
+            verify.style.color = 'red';
+            setTimeout(resetGame, 5000);
+        }
+    }, 1000);
+}
+
+function stopTimer() {
+    if (timerInterval != null) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
+
+
 function generateQuestion(currentLevel) {
     if (currentLevel === 1) {
-        const a = Math.floor(Math.random() * 41) - 20;
+        const a = Math.floor(Math.random() * 31) - 15;
         if (a === 0) return generateQuestion(currentLevel);
-        const b = Math.floor(Math.random() * 20) + 1;
+        const b = Math.floor(Math.random() * 15) + 1;
         const operators = ['+', '-', '/', '*'];
         const operator = operators[Math.floor(Math.random() * operators.length)];
 
@@ -63,9 +105,9 @@ function generateQuestion(currentLevel) {
     }
 
     if (currentLevel === 2) {
-        const a = Math.floor(Math.random() * 31) - 15;
+        const a = Math.floor(Math.random() * 21) - 10;
         if (a === 0) return generateQuestion(currentLevel);
-        const b = Math.floor(Math.random() * 25) + 1;
+        const b = Math.floor(Math.random() * 15) + 1;
         const rightNumber = Math.floor(Math.random() * 100) + 1;
         const operators = ['+', '-', '*', '/'];
         const operators_logic = ['>', '<', '=='];
@@ -98,7 +140,54 @@ function generateQuestion(currentLevel) {
 
         used_questions.add(key);
         return { text: question, answer: answer };
+    }
 
+    if (currentLevel === 3) {
+        const bits = Math.floor(Math.random() * 4) + 6; // 6-9 бит будет
+        const a = Math.floor(Math.random() * (1 << bits));
+        const b = Math.floor(Math.random() * (1 << bits));
+        const ops = ['+', '-', '&', '|', '^', '<<', '>>'];
+        const op = ops[Math.floor(Math.random() * ops.length)];
+
+        const aBin = a.toString(2);
+        const bBin = b.toString(2);
+
+        let question, answer;
+
+        if (op === '+') {
+            question = `${aBin} + ${bBin}`;
+            answer = (a + b).toString(2);
+        }
+        else if (op === '-') {
+            question = `${aBin} - ${bBin}`;
+            answer = (a - b).toString(2);
+        }
+        else if (op === '&') {
+            question = `${aBin} & ${bBin}`;
+            answer = (a & b).toString(2);
+        }
+        else if (op === '|') {
+            question = `${aBin} | ${bBin}`;
+            answer = (a | b).toString(2);
+        }
+        else if (op === '^') {
+            question = `${aBin} ^ ${bBin}`;
+            answer = (a ^ b).toString(2);
+        }
+        else if (op === '<<') {
+            question = `${aBin} << ${b}`;
+            answer = (a << b).toString(2);
+        }
+        else if (op === '>>') {
+            question = `${aBin} >> ${b}`;
+            answer = (a >> b).toString(2);
+        }
+        const key = question;
+        if (used_questions.has(key)) {
+            return generateQuestion(currentLevel);
+        }
+        used_questions.add(key);
+        return { text: question, answer: answer };
 
     }
 }
@@ -110,6 +199,9 @@ function viewQuestion() {
     }
     if (currentLevel === 2) {
         primer.textContent = q.text;
+    }
+    if (currentLevel === 3) {
+        primer.textContent = q.text + ' = ?';
     }
 
     currentAnswer = q.answer;
@@ -168,28 +260,56 @@ function checkAnswer() {
             return;
         }
     }
+    else if (currentLevel === 3) {
+        const user_answer = input.value.trim();
+        if (user_answer === currentAnswer) {
+            correct++;
+            verify.textContent = 'Correct!';
+            verify.style.color = 'green';
+        }
+        else {
+            wrong++;
+            verify.textContent = 'Incorrect!';
+            verify.style.color = 'red';
+        }
+    }
 
+    //проверка на конец уровня, переход на новый
     if (correct + wrong === 10) {
-        if (currentLevel === 3)
-        {
+        levelDisplay.textContent = `Level: ${currentLevel} | Correct: ${correct} | Wrong: ${wrong}`;
+
+        if (currentLevel === 3) {
+
             input.value = '';
-            verify.textContent = 'You completed all levels!';
+            verify.textContent = 'You completed all levels!!!';
             verify.style.color = 'green';
             setTimeout(resetGame, 5000);
             return;
         }
 
         else if (correct >= 8) {
+
             currentLevel++;
             used_questions.clear();
 
             input.value = '';
             correct = 0;
             wrong = 0;
+
+            verify.textContent = `Level ${currentLevel} up!`;
+            verify.style.color = 'blue';
+
+            setTimeout(() => {
+                verify.textContent = '';
+                startTimer();
+                viewQuestion();
+            }, 3500);
+            return;
         }
+
         else {
             input.value = '';
-            verify.textContent = 'Game Over! Restarting...';
+            verify.textContent = 'Game Over!';
             verify.style.color = 'red';
             setTimeout(resetGame, 5000);
             return;
@@ -198,9 +318,6 @@ function checkAnswer() {
 
     input.value = '';
     setTimeout(viewQuestion, time_to_next_question);
-
-
-
 }
 
 button.addEventListener('click', checkAnswer);
@@ -208,4 +325,16 @@ input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') checkAnswer();
 });
 
-viewQuestion();
+button_reset.addEventListener('click', () => {
+    primer.textContent = 'Restarting game...';
+    input.value = '';
+    setTimeout(resetGame, 1500);
+});
+
+button_exit.addEventListener('click', () => {
+    stopTimer();
+    verify.textContent = 'Game exited. Refresh to play again.';
+    verify.style.color = 'gray';
+});
+
+resetGame();

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MathGame</title>
     <link rel="stylesheet" href="style.css">
-    
+
 </head>
 
 <body>
@@ -13,15 +13,25 @@
         <div class="form">
             <h1>MathGame</h1>
             <p class="level">Level: </p>
-            <p class="time">Time left: 4:23</p>
+            <div class="timer">
+                <p class="time_left">Time left: <span id="timer">60</span> s</p>
+            </div>
+
             <p class="math_primer"></p>
             <div class="input_and_sub">
-                <input class=".input" type="text" id="example" name="example" placeholder="Enter your answer" autocomplete="off">
+                <input class=".input" type="text" id="example" name="example" placeholder="Enter your answer"
+                    autocomplete="off">
                 <button class="submit">Submit</button>
             </div>
             <p class="verify">Correct!</p>
         </div>
     </div>
+
+    <div class="manage_buttons">
+        <button class="reset">Reset</button>
+        <button class="exit">Exit</button>
+    </div>
+
     <script src="script.js"></script>
 </body>
 

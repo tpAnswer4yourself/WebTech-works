@@ -16,7 +16,7 @@ body {
     border: 2px solid black;
     filter: drop-shadow(0px 0px 20px rgba(72, 74, 182, 0.23));
     border-radius: 35px;
-    max-width: 500px;
+    max-width: 600px;
 }
 
 .form h1{
@@ -51,7 +51,7 @@ input {
 
 .submit {
     margin: auto;
-    width: 40%;
+    width: 12rem;
     font-size: 1.25rem;
     padding: 0.5rem 0.25rem;
     background-color: rgb(7, 158, 15);
@@ -69,4 +69,27 @@ input {
     font-weight: 600;
     font-size: 2rem;
     min-height: 3rem;
+}
+
+.manage_buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8rem;
+    margin-top: 5rem;
+    margin-bottom: 1rem;
+}
+
+.manage_buttons button {
+    font-size: 1.25rem;
+    padding: 0.5rem 0.25rem;
+    color: rgb(0, 0, 0);
+    background-color: rgb(212, 212, 212);
+    border: none;
+    width: 10rem;
+    border-radius: 10px;
+}
+
+.manage_buttons button:hover {
+    background-color: rgb(164, 164, 164);
+    cursor: pointer;
 }
