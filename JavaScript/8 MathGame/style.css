@@ -58,11 +58,17 @@ input {
     color: white;
     border: none;
     border-radius: 10px;
+    transition: color 1s ease;
 }
 
 .submit:hover {
-    background-color: rgb(27, 182, 34);
+    background-color: rgb(34, 186, 41);
     cursor: pointer;
+}
+
+.submit:disabled {
+    background-color: rgb(182, 182, 182);
+    cursor: not-allowed;
 }
 
 .verify {
@@ -84,12 +90,45 @@ input {
     padding: 0.5rem 0.25rem;
     color: rgb(0, 0, 0);
     background-color: rgb(212, 212, 212);
-    border: none;
+    border: 1 px solid rgb(76, 76, 76);
     width: 10rem;
     border-radius: 10px;
+    transition: color 0.15s ease;
 }
 
-.manage_buttons button:hover {
-    background-color: rgb(164, 164, 164);
+.exit:hover {
+    background-color: rgb(255, 102, 102);
+    color: white;
     cursor: pointer;
+}
+
+.reset:hover {
+    background-color: rgb(102, 178, 255);
+    color: white;
+    cursor: pointer;
+}
+
+
+@media (max-width: 768px) {
+    .manage_buttons {
+        gap: 2rem;
+    }
+    
+    .gameform {
+        width: 85%;
+    }
+
+    body {
+        font-size: 1.25em;
+    }
+}
+
+@media (max-width: 480px) {
+    .manage_buttons {
+        gap: 1rem;
+    }
+
+    body {
+        font-size: 1em;
+    }
 }

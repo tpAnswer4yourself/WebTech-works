@@ -8,37 +8,58 @@ const button_exit = document.querySelector('.exit');
 const levelDisplay = document.querySelector('.level');
 const verify = document.querySelector('.verify');
 const timerDisplay = document.getElementById('timer');
+const timer_dis = document.querySelector('.timer');
+const level_dis = document.querySelector('.level');
+
+const input_placeholder = document.getElementById('example');
+
+const block = document.querySelector('.input_and_sub');
+
+const input_block = document.querySelector('.input');
 
 let taymer = 0;
 let questions_in_level = 0;
-let currentLevel = 1;
+let currentLevel = 1;  //!!!!
 let used_questions = new Set();
-time_to_next_question = 1000;
+let time_to_next_question = 1000;
 
 let time_left = 120; // seconds
 let timerInterval = null; //для будущей остановки таймера
 
 let correct = 0;
 let wrong = 0;
+let total_correct = 0;
+let total_wrong = 0;
+
 let currentAnswer = null;
 
 function resetGame() {
     taymer = 0;
     questions_in_level = 0;
-    currentLevel = 1;
+    currentLevel = 1; //!!!!
     used_questions.clear();
     correct = 0;
     wrong = 0;
+    total_correct = 0;
+    total_wrong = 0;
+
     currentAnswer = null;
     stopTimer();
     startTimer();
     viewQuestion();
+    button.disabled = false;
+    primer.style.color = 'black';
+    primer.style.display = 'block';
+    block.style.display = 'block'; //показать блок
+    timer_dis.style.display = 'block';
+    level_dis.style.display = 'block';
+    input_block.style.display = 'block';
 }
 
 function startTimer() {
     if (currentLevel === 1) time_left = 60;  //время на первом уровне
     else if (currentLevel === 2) time_left = 60; //время на втором уровне
-    else if (currentLevel === 3) time_left = 180; //время на третьем уровне
+    else if (currentLevel === 3) time_left = 60; //время на третьем уровне
 
     timerDisplay.textContent = time_left;
 
@@ -52,9 +73,11 @@ function startTimer() {
         timerDisplay.textContent = time_left;
         if (time_left <= 0) {
             clearInterval(timerInterval);
-            verify.textContent = 'Time is up! Restarting...';
+            verify.textContent = 'Время вышло! Игра окончена...';
             verify.style.color = 'red';
-            setTimeout(resetGame, 5000);
+            block.style.display = 'none'; //скрыть блок инпут+кнопка
+            level_dis.style.display = 'none';
+            primer.style.display = 'none';
         }
     }, 1000);
 }
@@ -69,6 +92,7 @@ function stopTimer() {
 
 function generateQuestion(currentLevel) {
     if (currentLevel === 1) {
+        input_placeholder.placeholder = 'Введите число';
         const a = Math.floor(Math.random() * 31) - 15;
         if (a === 0) return generateQuestion(currentLevel);
         const b = Math.floor(Math.random() * 15) + 1;
@@ -99,12 +123,12 @@ function generateQuestion(currentLevel) {
         if (used_questions.has(key)) {
             return generateQuestion(currentLevel);
         }
-
         used_questions.add(key);
         return { text: question, answer: answer };
     }
 
     if (currentLevel === 2) {
+        input_placeholder.placeholder = 'Введите True или False';
         const a = Math.floor(Math.random() * 21) - 10;
         if (a === 0) return generateQuestion(currentLevel);
         const b = Math.floor(Math.random() * 15) + 1;
@@ -137,58 +161,53 @@ function generateQuestion(currentLevel) {
         if (used_questions.has(key)) {
             return generateQuestion(currentLevel);
         }
-
         used_questions.add(key);
         return { text: question, answer: answer };
     }
 
     if (currentLevel === 3) {
-        const bits = Math.floor(Math.random() * 4) + 6; // 6-9 бит будет
-        const a = Math.floor(Math.random() * (1 << bits));
-        const b = Math.floor(Math.random() * (1 << bits));
-        const ops = ['+', '-', '&', '|', '^', '<<', '>>'];
-        const op = ops[Math.floor(Math.random() * ops.length)];
+        input_placeholder.placeholder = 'Введите двоичное число';
+        const bits_a = Math.floor(Math.random() * 4) + 1; // от 1 до 4 бит
+        const bits_b = Math.floor(Math.random() * 4) + 1; // от 1 до 4 бит
 
-        const aBin = a.toString(2);
-        const bBin = b.toString(2);
+        let a = Math.floor(Math.random() * (1 << bits_a));
+        let b = Math.floor(Math.random() * (1 << bits_b));
 
-        let question, answer;
+        if (a === 0 || b === 0) return generateQuestion(currentLevel);
 
-        if (op === '+') {
-            question = `${aBin} + ${bBin}`;
-            answer = (a + b).toString(2);
+        const operator = Math.random() < 0.5 ? '+' : '-';
+        let abin = a.toString(2);
+        let bbin = b.toString(2);
+
+        let answer;
+        let question;
+
+        if (operator === '+') {
+            const sum = a + b;
+            if (sum > 15) return generateQuestion(currentLevel) //переполнение
+
+
+            answer = sum.toString(2);
+            question = `${abin} + ${bbin}`;
         }
-        else if (op === '-') {
-            question = `${aBin} - ${bBin}`;
-            answer = (a - b).toString(2);
+
+        else if (operator === '-') {
+            if (a < b) {
+                [a, b] = [b, a];
+                [abin, bbin] = [bbin, abin];
+            }
+            const vichit = a - b;
+            answer = vichit === 0 ? '0' : vichit.toString(2);
+
+            question = `${abin} - ${bbin}`;
         }
-        else if (op === '&') {
-            question = `${aBin} & ${bBin}`;
-            answer = (a & b).toString(2);
-        }
-        else if (op === '|') {
-            question = `${aBin} | ${bBin}`;
-            answer = (a | b).toString(2);
-        }
-        else if (op === '^') {
-            question = `${aBin} ^ ${bBin}`;
-            answer = (a ^ b).toString(2);
-        }
-        else if (op === '<<') {
-            question = `${aBin} << ${b}`;
-            answer = (a << b).toString(2);
-        }
-        else if (op === '>>') {
-            question = `${aBin} >> ${b}`;
-            answer = (a >> b).toString(2);
-        }
+
         const key = question;
         if (used_questions.has(key)) {
             return generateQuestion(currentLevel);
         }
         used_questions.add(key);
         return { text: question, answer: answer };
-
     }
 }
 
@@ -208,7 +227,7 @@ function viewQuestion() {
     input.value = '';
     input.focus();
     verify.textContent = '';
-    levelDisplay.textContent = `Level: ${currentLevel} | Correct: ${correct} | Wrong: ${wrong}`;
+    levelDisplay.textContent = `Уровень: ${currentLevel} | ${correct}✅ ${wrong}❌`;
 }
 
 
@@ -217,45 +236,51 @@ function checkAnswer() {
         const user_answer = parseFloat(input.value);
         if (user_answer === currentAnswer) {
             correct++;
-            verify.textContent = 'Correct!';
+            total_correct++;
+            verify.textContent = 'Верно!';
             verify.style.color = 'green';
         }
         else if (user_answer !== currentAnswer || isNaN(user_answer)) {
             wrong++;
-            verify.textContent = 'Incorrect!';
+            total_wrong++;
+            verify.textContent = 'Неверно!';
             verify.style.color = 'red';
         }
     }
     else if (currentLevel === 2) {
         const user_answer = input.value.trim().toLowerCase();
-        if (user_answer === '1' || user_answer === 'true' || user_answer === 'yes' || user_answer === 'y' || user_answer === 't') {
+        if (user_answer === '1' || user_answer === 'true' || user_answer === 'yes' || user_answer === 'y' || user_answer === 't' || user_answer === 'да' || user_answer === 'д' || user_answer === 'правда') {
             const bool_user_answer = true;
             if (bool_user_answer === currentAnswer) {
                 correct++;
-                verify.textContent = 'Correct!';
+                total_correct++;
+                verify.textContent = 'Верно!';
                 verify.style.color = 'green';
             }
             else {
                 wrong++;
-                verify.textContent = 'Incorrect!';
+                total_wrong++;
+                verify.textContent = 'Неверно!';
                 verify.style.color = 'red';
             }
         }
-        else if (user_answer === '0' || user_answer === 'false' || user_answer === 'no' || user_answer === 'n' || user_answer === 'f') {
+        else if (user_answer === '0' || user_answer === 'false' || user_answer === 'no' || user_answer === 'n' || user_answer === 'f' || user_answer === 'нет' || user_answer === 'н' || user_answer === 'ложь') {
             const bool_user_answer = false;
             if (bool_user_answer === currentAnswer) {
                 correct++;
-                verify.textContent = 'Correct!';
+                total_correct++;
+                verify.textContent = 'Верно!';
                 verify.style.color = 'green';
             }
             else {
                 wrong++;
-                verify.textContent = 'Incorrect!';
+                total_wrong++;
+                verify.textContent = 'Неверно!';
                 verify.style.color = 'red';
             }
         }
         else {
-            verify.textContent = 'True/False';
+            verify.textContent = 'Введите true или false';
             verify.style.color = 'gray';
             return;
         }
@@ -264,30 +289,42 @@ function checkAnswer() {
         const user_answer = input.value.trim();
         if (user_answer === currentAnswer) {
             correct++;
-            verify.textContent = 'Correct!';
+            total_correct++;
+            verify.textContent = 'Верно!';
             verify.style.color = 'green';
         }
         else {
             wrong++;
-            verify.textContent = 'Incorrect!';
+            total_wrong++;
+            verify.textContent = 'Неверно!';
             verify.style.color = 'red';
         }
     }
 
     //проверка на конец уровня, переход на новый
-    if (correct + wrong === 10) {
-        levelDisplay.textContent = `Level: ${currentLevel} | Correct: ${correct} | Wrong: ${wrong}`;
+    if (correct + wrong >= 10) {
+        levelDisplay.textContent = `Уровень: ${currentLevel} | ${correct}✅ ${wrong}❌`;
 
-        if (currentLevel === 3) {
+        if (correct >= 8) {
 
-            input.value = '';
-            verify.textContent = 'You completed all levels!!!';
-            verify.style.color = 'green';
-            setTimeout(resetGame, 5000);
-            return;
-        }
+            if (currentLevel === 3) {
+                input.value = '';
+                stopTimer();
 
-        else if (correct >= 8) {
+                setTimeout(() => {
+                    alert("✨ Вы успешно прошли игру MathGame! ✨");
+                }, 1000);
+
+                verify.textContent = 'Поздравляем!\nВы прошли игру!';
+                primer.textContent = `Правильных ответов: ${total_correct}✅\nОшибок: ${total_wrong}❌`;
+                level_dis.style.display = 'none';
+                verify.style.color = 'green';
+                button.style.display = 'none';
+                block.style.display = 'none';
+                timer_dis.style.display = 'none';
+
+                return;
+            }
 
             currentLevel++;
             used_questions.clear();
@@ -296,7 +333,7 @@ function checkAnswer() {
             correct = 0;
             wrong = 0;
 
-            verify.textContent = `Level ${currentLevel} up!`;
+            verify.textContent = `Новый ${currentLevel}✅ уровень!`;
             verify.style.color = 'blue';
 
             setTimeout(() => {
@@ -309,9 +346,15 @@ function checkAnswer() {
 
         else {
             input.value = '';
-            verify.textContent = 'Game Over!';
+            primer.textContent = `Правильных ответов: ${total_correct}✅
+            \nОшибок: ${total_wrong}❌`;
+            stopTimer();
+            button.disabled = true;
+            verify.textContent = 'Игра окончена, недостаточно правильных ответов';
+            block.style.display = 'none'; //скрыть блок инпут+кнопка
+            timer_dis.style.display = 'none';
+            level_dis.style.display = 'none';
             verify.style.color = 'red';
-            setTimeout(resetGame, 5000);
             return;
         }
     }
@@ -326,15 +369,24 @@ input.addEventListener('keydown', (e) => {
 });
 
 button_reset.addEventListener('click', () => {
-    primer.textContent = 'Restarting game...';
+    block.style.display = 'none'; //скрыть блок инпут+кнопка
+    timer_dis.style.display = 'none';
+    verify.textContent = '';
+    primer.textContent = 'Запуск новой игры...';
+    primer.style.color = `#6520b9ff`;
+    stopTimer();
     input.value = '';
     setTimeout(resetGame, 1500);
 });
 
 button_exit.addEventListener('click', () => {
     stopTimer();
-    verify.textContent = 'Game exited. Refresh to play again.';
-    verify.style.color = 'gray';
+    block.style.display = 'none'; //скрыть блок инпут+кнопка
+    timer_dis.style.display = 'none';
+    primer.textContent = 'Игра завершена!';
+    primer.style.color = 'red';
+    verify.textContent = '';
+    input.value = '';
 });
 
 resetGame();
