@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const totalPriceBlock = document.querySelector('.total-price');
 
     const resetButton = document.querySelector('button[type="reset"]');
+    const form = document.querySelector('.order-form-section form');
 
     const selectedDish = {
         soup: null,
@@ -127,7 +128,82 @@ document.addEventListener('DOMContentLoaded', function () {
         updateOrderSummary();
     });
 
-    const filter = document.querySelector('.filter-btn');
+    /////// 6 лаба --- ПРОВЕРКА ВАЛИДНОСТИ ВЫБРАННЫХ БЛЮД
+
+    form.addEventListener('submit', function (event) {
+
+        //переменные-флаги, для проверки: что выбрано, а что нет
+        const sel_soup = !!selectedDish.soup;
+        const sel_main_course = !!selectedDish.main_course;
+        const sel_salat = !!selectedDish.salat;
+        const sel_beverage = !!selectedDish.beverage;
+        const sel_dessert = !!selectedDish.dessert;
+
+        const isValid = (sel_soup && sel_main_course && sel_salat && sel_beverage) ||
+            (sel_soup && sel_main_course && sel_beverage) ||
+            (sel_soup && sel_salat && sel_beverage) ||
+            (sel_main_course && sel_salat && sel_beverag) ||
+            (sel_main_course && sel_beverage);
+
+        if (isValid) {
+            console.log('Все хорошо, отправляем форму');
+            return;
+        };
+        //если не валидная комбинация
+        event.preventDefault(); //блокируем отправку
+
+        if (!sel_soup && !sel_main_course && !sel_salat && !sel_beverage && !sel_dessert) {
+            showModalWindow("Ничего не выбрано. Выберите блюдо для заказа");
+            return;
+        }
+
+        if (!sel_beverage) {
+            showModalWindow("Выберите напиток");
+            return;
+        }
+        else if (sel_soup && (!sel_main_course || !sel_salat)) {
+            showModalWindow("Выберите главное блюдо/салат/стартер");
+            return;
+        }
+        else if (sel_salat && (!sel_soup || !sel_main_course)) {
+            showModalWindow("Выберите суп или главное блюдо");
+            return;
+        }
+        else if ((sel_beverage || sel_dessert) && !sel_main_course) {
+            showModalWindow("Выберите главное блюдо");
+            return;
+        }
+        else {
+            showModalWindow("Выберите главное блюдо");
+            return;
+        }
+    });
+
+    //функция создания окна проверки выбора блюд
+    function showModalWindow(message) {
+        const overlay = document.createElement('div');
+        overlay.classList.add('modal-overlay');
+        
+        const modal = document.createElement('div');
+        modal.classList.add('modal-window');
+
+        const text = document.createElement('p');
+        text.textContent = message;
+        
+        const button_okey = document.createElement('button');
+        button_okey.classList.add('button-okey');
+        button_okey.textContent = 'Окей👌';
+
+        //сборка окна
+        modal.appendChild(text);
+        modal.appendChild(button_okey);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay); //добавляем в документ
+
+        button_okey.addEventListener('click', function() {
+            document.body.removeChild(overlay);
+        });
+    }
 
     updateOrderSummary();
 });
