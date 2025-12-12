@@ -4,9 +4,11 @@ window.addEventListener('dishesLoaded', function(){
 
     const summaryContainer = document.querySelector('.selected-summary');
     const totalPriceBlock = document.querySelector('.total-price');
+    const form = document.querySelector('form');
 
     loadOrderFromStorage();
-
+    const API_KEY = '93f2f89f-4f0d-4dda-ba66-ae4884769bb4';
+    const API_URL = `https://edu.std-900.ist.mospolytech.ru/labs/api/orders?api_key=${API_KEY}`;
 
     document.querySelector('button[type="reset"]').addEventListener('click', () => {
         Object.keys(window.selectedDish).forEach(k => window.selectedDish[k] = null);
@@ -14,6 +16,73 @@ window.addEventListener('dishesLoaded', function(){
         displaySelectedDishes();
         updateOrderSummary();
     });
+
+    // Перехват отправки заказа
+    document.querySelector('form').addEventListener('submit', async function (e) {
+        e.preventDefault(); // блокируем обычную отправку
+
+        // Проверка валидности комбо (то же самое, что у тебя было раньше)
+        const s = !!window.selectedDish.soup;
+        const m = !!window.selectedDish.main_course;
+        const a = !!window.selectedDish.salat;
+        const b = !!window.selectedDish.beverage;
+
+        const isValid = (s && m && a && b) || (s && m && b) || (s && a && b) || (m && a && b) || (m && b);
+
+        if (!isValid) {
+            showModalWindow("Неверное сочетание блюд! Проверьте комбо.");
+            return;
+        }
+        // ←←← СОБИРАЕМ ДАННЫЕ ←←←
+        const formData = new FormData(form); // берём все поля формы
+
+        const payload = {
+            full_name: formData.get('name') || '',
+            email: formData.get('email') || '',
+            phone: formData.get('phone'),
+            delivery_address: formData.get('address'),
+            delivery_type: document.querySelector('#asap').checked ? 'now' : 'by_time',
+            comment: formData.get('comment') || '',
+            subscribe: formData.get('podpiska') === 'on',
+            drink_id: window.selectedDish.beverage.id,
+        };
+
+        if (window.selectedDish.soup) payload.soup_id = window.selectedDish.soup.id;
+        if (window.selectedDish.main_course) payload.main_course_id = window.selectedDish.main_course.id;
+        if (window.selectedDish.salat) payload.salad_id = window.selectedDish.salat.id;
+        if (window.selectedDish.dessert) payload.dessert_id = window.selectedDish.dessert.id;
+
+        if (payload.delivery_type === 'by_time') {
+            payload.delivery_time = formData.get('time_delivery');
+        }
+
+        // ←←← ОТПРАВЛЯЕМ НА СЕРВЕР ←←←
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error || 'Неизвестная ошибка сервера');
+            }
+
+            // УСПЕХ — заказ принят
+            showModalWindow("Заказ успешно отправлен! 🎉");
+            localStorage.removeItem('lunchOrder');
+            Object.keys(window.selectedDish).forEach(k => window.selectedDish[k] = null);
+            displaySelectedDishes();
+            updateOrderSummary();
+            form.reset(); // очищаем форму
+
+        } catch (error) {
+            // ЛЮБАЯ ОШИБКА — заказ НЕ очищаем
+            showModalWindow("Ошибка отправки: " + error.message);
+            console.error('Ошибка отправки заказа:', error);
+        }
+    }); // ← конец submit-обработчика
 
     function createDishCardOrd(dish) {
         const card = document.createElement('div');
@@ -93,7 +162,7 @@ window.addEventListener('dishesLoaded', function(){
             dessert: 'Десерт'
         };
 
-        for (const [cat, dish] of Object.entries(selectedDish)) {
+        for (const [cat, dish] of Object.entries(window.selectedDish)) {
             const p = document.createElement('p');
 
             if (dish) {

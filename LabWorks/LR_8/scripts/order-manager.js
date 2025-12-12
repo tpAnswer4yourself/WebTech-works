@@ -79,7 +79,7 @@ window.addEventListener('dishesLoaded', function () {
 
     const panel = document.getElementById('checkoutPanel');
     const totalSpan = document.getElementById('PanelTotal');
-    const btn = document.getElementById('checkoutBtn');
+    //const btn = document.getElementById('checkoutBtn');
 
     function updateCheckoutPanel() {
         const selected = Object.values(window.selectedDish).filter(d => d);
@@ -243,8 +243,6 @@ window.addEventListener('dishesLoaded', function () {
         updatePanel();
         updateCheckoutPanel();
     }
-    
-
     updatePanel();
 });
 
