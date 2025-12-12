@@ -7,7 +7,7 @@ window.addEventListener('dishesLoaded', function(){
     const form = document.querySelector('form');
 
     loadOrderFromStorage();
-    const API_KEY = '93f2f89f-4f0d-4dda-ba66-ae4884769bb4';
+    const API_KEY = '93f2f89f-4f0d-4dda-ba66-ae4884769bb4';  // ЭТО УЧЕБНЫЙ API!!!!!!!!!!!!!
     const API_URL = `https://edu.std-900.ist.mospolytech.ru/labs/api/orders?api_key=${API_KEY}`;
 
     document.querySelector('button[type="reset"]').addEventListener('click', () => {
