@@ -29,7 +29,9 @@ window.addEventListener('dishesLoaded', function () {
         return dishes.find(dish => dish.keyword === keyword);
     }
 
-    function updateOrderSummary() {
+    
+    function updatePanel() {
+        if (!summaryContainer || !totalPriceBlock) return;
         summaryContainer.innerHTML = '';
 
         const selectedCount = Object.values(selectedDish).filter(d => d != null).length;
@@ -73,8 +75,23 @@ window.addEventListener('dishesLoaded', function () {
 
         totalPriceBlock.innerHTML = `<h3>Стоимость заказа: <span id="total-amount">${totalPrice}₽</span></h3>`;
         totalPriceBlock.style.display = 'block';
-
     };
+
+    const panel = document.getElementById('checkoutPanel');
+    const totalSpan = document.getElementById('PanelTotal');
+    const btn = document.getElementById('checkoutBtn');
+
+    function updateCheckoutPanel() {
+        const selected = Object.values(window.selectedDish).filter(d => d);
+        const total = selected.reduce((sum, d) => sum + d.price, 0);
+
+        if (selected.length === 0) {
+            panel.style.display = 'none';
+        } else {
+            panel.style.display = 'flex';
+            totalSpan.textContent = total + '₽';
+        }
+    }
 
     document.addEventListener('click', function (event) {
         const card = event.target.closest('.dish_card');
@@ -122,81 +139,85 @@ window.addEventListener('dishesLoaded', function () {
         selectedDish[category] = dish;
         //СРАЗУ ЖЕ СОХРАНЯЕМ В LS
         saveOrderToStorage();
-
-
-        updateOrderSummary();
+        updateCheckoutPanel();
         console.log('Выбрано:', dish.name, 'Категория:', category);
     });
 
-    resetButton.addEventListener('click', function (event) {
-        selectedDish.soup = null;
-        selectedDish.main_course = null;
-        selectedDish.beverage = null;
-        selectedDish.salat = null;
-        selectedDish.dessert = null;
-        document.querySelectorAll('.dish_card.selected').forEach(card => {
-            card.classList.remove('selected');
+    if (resetButton) {
+        resetButton.addEventListener('click', function (event) {
+            selectedDish.soup = null;
+            selectedDish.main_course = null;
+            selectedDish.beverage = null;
+            selectedDish.salat = null;
+            selectedDish.dessert = null;
+            document.querySelectorAll('.dish_card.selected').forEach(card => {
+                card.classList.remove('selected');
+            });
+            totalPriceBlock.style.display = 'none';
+
+            //При сбросе, удаляем из локального хранилища выбранные блюда!!!
+            localStorage.removeItem('lunchOrder');
+
+            console.log('Сброс формы заказа');
+
+            updatePanel();
+            updateCheckoutPanel();
         });
-        totalPriceBlock.style.display = 'none';
-
-        //При сбросе, удаляем из локального хранилища выбранные блюда!!!
-        localStorage.removeItem('lunchOrder');
-
-        console.log('Сброс формы заказа');
-
-        updateOrderSummary();
-    });
+    }
+    
 
     /////// 6 лаба --- ПРОВЕРКА ВАЛИДНОСТИ ВЫБРАННЫХ БЛЮД
 
-    form.addEventListener('submit', function (event) {
+    if (form) {
+        form.addEventListener('submit', function (event) {
 
-        //переменные-флаги, для проверки: что выбрано, а что нет
-        const sel_soup = !!selectedDish.soup;
-        const sel_main_course = !!selectedDish.main_course;
-        const sel_salat = !!selectedDish.salat;
-        const sel_beverage = !!selectedDish.beverage;
-        const sel_dessert = !!selectedDish.dessert;
+            //переменные-флаги, для проверки: что выбрано, а что нет
+            const sel_soup = !!selectedDish.soup;
+            const sel_main_course = !!selectedDish.main_course;
+            const sel_salat = !!selectedDish.salat;
+            const sel_beverage = !!selectedDish.beverage;
+            const sel_dessert = !!selectedDish.dessert;
 
-        const isValid = (sel_soup && sel_main_course && sel_salat && sel_beverage) ||
-            (sel_soup && sel_main_course && sel_beverage) ||
-            (sel_soup && sel_salat && sel_beverage) ||
-            (sel_main_course && sel_salat && sel_beverag) ||
-            (sel_main_course && sel_beverage);
+            const isValid = (sel_soup && sel_main_course && sel_salat && sel_beverage) ||
+                (sel_soup && sel_main_course && sel_beverage) ||
+                (sel_soup && sel_salat && sel_beverage) ||
+                (sel_main_course && sel_salat && sel_beverag) ||
+                (sel_main_course && sel_beverage);
 
-        if (isValid) {
-            console.log('Все хорошо, отправляем форму');
-            return;
-        };
-        //если не валидная комбинация
-        event.preventDefault(); //блокируем отправку
+            if (isValid) {
+                console.log('Все хорошо, отправляем форму');
+                return;
+            };
+            //если не валидная комбинация
+            event.preventDefault(); //блокируем отправку
 
-        if (!sel_soup && !sel_main_course && !sel_salat && !sel_beverage && !sel_dessert) {
-            showModalWindow("Ничего не выбрано. Выберите блюдо для заказа");
-            return;
-        }
+            if (!sel_soup && !sel_main_course && !sel_salat && !sel_beverage && !sel_dessert) {
+                showModalWindow("Ничего не выбрано. Выберите блюдо для заказа");
+                return;
+            }
 
-        if (!sel_beverage) {
-            showModalWindow("Выберите напиток");
-            return;
-        }
-        else if (sel_soup && (!sel_main_course || !sel_salat)) {
-            showModalWindow("Выберите главное блюдо/салат/стартер");
-            return;
-        }
-        else if (sel_salat && (!sel_soup || !sel_main_course)) {
-            showModalWindow("Выберите суп или главное блюдо");
-            return;
-        }
-        else if ((sel_beverage || sel_dessert) && !sel_main_course) {
-            showModalWindow("Выберите главное блюдо");
-            return;
-        }
-        else {
-            showModalWindow("Выберите главное блюдо");
-            return;
-        }
-    });
+            if (!sel_beverage) {
+                showModalWindow("Выберите напиток");
+                return;
+            }
+            else if (sel_soup && (!sel_main_course || !sel_salat)) {
+                showModalWindow("Выберите главное блюдо/салат/стартер");
+                return;
+            }
+            else if (sel_salat && (!sel_soup || !sel_main_course)) {
+                showModalWindow("Выберите суп или главное блюдо");
+                return;
+            }
+            else if ((sel_beverage || sel_dessert) && !sel_main_course) {
+                showModalWindow("Выберите главное блюдо");
+                return;
+            }
+            else {
+                showModalWindow("Выберите главное блюдо");
+                return;
+            }
+        });
+    }
 
 
     function highlightSelectedDishes() {
@@ -219,11 +240,12 @@ window.addEventListener('dishesLoaded', function () {
                 card.classList.add('selected');
             }
         }
-        updateOrderSummary(); // обновим сумму и список
+        updatePanel();
+        updateCheckoutPanel();
     }
     
 
-    updateOrderSummary();
+    updatePanel();
 });
 
 

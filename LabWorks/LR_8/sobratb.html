@@ -6,6 +6,7 @@
     <title>Food Construct - Собрать ланч</title>
     <link rel="stylesheet" href="styles/lunch.css">
     <link rel="stylesheet" href="styles/modal_window.css">
+    <link rel="stylesheet" href="styles/info-panel.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -168,67 +169,12 @@
             <div class="dishes_container"></div>
         </section>
 
-        <section class="order-form-section">
-            <h2>Сделать заказ</h2>
-            <form action="https://httpbin.org/post" method="post">
-                <div class="form-container">
-                    <div class="order-block">
-                        <h3>Ваш заказ</h3>
-
-                        <div class="selected-summary">
-                        </div>
-
-                        <div class="total-price" style="display: none;">
-                            <h3>Стоимость заказа: <span id="total-amount">0</span>₽</h3>
-                        </div>
-
-                        <label for="comment">Коментарий к заказу</label>
-                        <textarea name="comment" id="comment"></textarea>
-                    </div>
-                    <div class="customer-block">
-                        <h3>Ваши данные</h3>
-                        <label for="name">Имя</label>
-                        <input type="text" id="name" name="name" required>
-
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
-
-                        <div class="checkbox-podpiska">
-                            <input type="checkbox" id="podpiska" name="podpiska" checked required>
-                            <label for="podpiska">Получать информацию о скидках и акциях</label>
-                        </div>
-
-                        <label for="phone">Номер телефона</label>
-                        <input type="tel" id="phone" name="phone" required>
-
-                        <label for="address">Адрес</label>
-                        <input type="text" id="address" name="address" required>
-
-                        <label class="time_label">Время доставки:</label>
-
-                        <div class="rad">
-                            <input type="radio" id="asap" name="time_optional" value="asap">
-                            <label for="asap">Как можно скорее</label>
-                        </div>
-
-                        <div class="rad">
-                            <input type="radio" id="specific" name="time_optional" value="specific">
-                            <label for="specific">Ко времени</label>
-                        </div>
-
-                        <label for="time_delivery">Укажите время доставки</label>
-                        <input type="time" name="time_delivery" id="time_delivery" min="09:00" max="23:00" step="00:05">
-                        <label class="time_delivery" for="time_delivery"><i>Доступное время доставки с 7:00 до
-                                23:00</i></label>
-
-                        <div class="buttons-block">
-                            <button type="reset">Сбросить</button>
-                            <button type="submit">Отправить</button>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </section>
+        <div class="checkout-panel" id="checkoutPanel">
+            <div class="checkout-info">
+                <span>Итого: <strong id="PanelTotal">0₽</strong></span>
+            </div>
+            <a href="your_order.html" id="checkoutBtn" class="checkout-button">Перейти к оформлению →</a>
+        </div>
     </main>
     <footer id="footer">
         <p>Позвоните нам <a href="#">+7-000-000-00-00</a></p>

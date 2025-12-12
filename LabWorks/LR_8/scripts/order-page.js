@@ -8,6 +8,13 @@ window.addEventListener('dishesLoaded', function(){
     loadOrderFromStorage();
 
 
+    document.querySelector('button[type="reset"]').addEventListener('click', () => {
+        Object.keys(window.selectedDish).forEach(k => window.selectedDish[k] = null);
+        localStorage.removeItem('lunchOrder');
+        displaySelectedDishes();
+        updateOrderSummary();
+    });
+
     function createDishCardOrd(dish) {
         const card = document.createElement('div');
         card.classList.add('dish_card');
@@ -63,7 +70,7 @@ window.addEventListener('dishesLoaded', function(){
     function updateOrderSummary() {
         summaryContainer.innerHTML = '';
 
-        const selectedCount = Object.values(selectedDish).filter(d => d != null).length;
+        const selectedCount = Object.values(window.selectedDish).filter(d => d != null).length;
         console.log('Выбрано блюд: ', selectedCount);
         if (selectedCount === 0) {
             //ничего не выбрано
