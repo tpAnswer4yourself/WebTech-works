@@ -22,7 +22,7 @@ window.addEventListener('dishesLoaded', function () {
     loadOrderFromStorage();
     setTimeout(() => { //подсветка карточек с классом .selected при обновлении страницы
         highlightSelectedDishes();
-    }, 100);
+    }, 1);
 
 
     function findDishByKeyword(keyword) {
