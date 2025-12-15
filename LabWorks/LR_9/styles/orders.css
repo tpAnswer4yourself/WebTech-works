@@ -1,0 +1,8 @@
+svg.bi-water {
+    transition: 0.15s ease-in;
+}
+
+svg.bi-water:hover {
+    transform: translateY(-5px) scale(1.1);
+    cursor: pointer;
+}

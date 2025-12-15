@@ -1,0 +1,174 @@
+* {
+    font-family: "Rubik", sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.1em;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: rgb(255, 254, 251);
+}
+
+#header {
+    margin-bottom: 3rem;
+    padding-left: 5%;
+    padding-top: 0.75rem;
+}
+
+#header h1 {
+    margin-bottom: 20px;
+}
+
+.main-menu ul {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    gap: 4rem;
+    row-gap: 1rem;
+}
+
+.main-menu a {
+    text-decoration: none;
+    font-size: 1.6rem;
+    color: black;
+    transition: color 0.15s ease;
+}
+
+.main-menu a:hover {
+    color: tomato;
+    text-decoration: underline;
+}
+
+#main {
+    flex: 1;
+    padding-left: 5%;
+    padding-right: 5%;
+    margin-bottom: 20px;
+}
+
+.main_img img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    margin-bottom: 20px;
+    border-radius: 35px;
+}
+
+section {
+    margin-bottom: 4rem;
+    font-size: 1.15rem;
+}
+
+section li {
+    margin-left: 1rem;
+}
+
+section h2 {
+    margin-bottom: 1rem;
+}
+
+table {
+    border-collapse: collapse;
+    width: 50%;
+    margin: 20px 20px;
+}
+
+td,
+th {
+    border: 1px solid black;
+    padding: 1rem;
+    text-align: center;
+}
+
+tr:first-child {
+    font-weight: bold;
+}
+
+td:first-child {
+    width: 2rem;
+}
+
+#footer {
+    background-color: black;
+    color: white;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+    width: 100%;
+}
+
+footer p {
+    text-align: center;
+    padding-left: 5%;
+    padding-right: 5%;
+    padding-bottom: 0.5rem;
+}
+
+footer a {
+    text-decoration: none;
+    color: white;
+    transition: color 0.15s ease;
+}
+
+footer a:hover {
+    color: tomato;
+}
+
+.podsvetka_str a {
+    color: tomato;
+    text-decoration: underline;
+}
+
+@media (max-width: 800px) {
+
+    .main_img img {
+        width: 500px;
+    }
+
+    .main-menu ul {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 600px) {
+    h1 {
+        text-align: center;
+    }
+
+    .main-menu ul {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .main-menu a {
+        font-size: calc(1em + 4px);
+    }
+
+    .main_img img {
+        width: 100%;
+    }
+
+    table {
+        display: flex;
+        font-display: auto;
+        font-size: calc(1em - 2px);
+    }
+}
+
+@media (max-width: 400px) {
+    table {
+        font-size: calc(1em - 4px);
+    }
+}
