@@ -43,31 +43,81 @@ function showOrderModal(order, mode) {
         if (e.target === overlay) document.body.removeChild(overlay);
     };
 
+    const header = document.createElement('div');
+    header.classList.add('modal-header');
+    const divider_top = document.createElement('hr');
+    divider_top.classList.add('modal-divider');
+    const divider_down = document.createElement('hr');
+    divider_down.classList.add('modal-divider');
+
+    header.appendChild(title);
+    header.appendChild(closeBtn);
     // Собираем модалку
-    modal.appendChild(closeBtn);
-    modal.appendChild(title);
+    modal.appendChild(header);
+    modal.appendChild(divider_top);
     modal.appendChild(content);
+    modal.appendChild(divider_down);
     modal.appendChild(buttons);
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
 
     // === РЕЖИМ ПРОСМОТРА (view) ===
     if (mode === 'view') {
-        content.innerHTML = `
-            <p><strong>Номер заказа:</strong> ${order.id}</p>
-            <p><strong>Дата оформления:</strong> ${new Date(order.created_at).toLocaleString('ru-RU')}</p>
-            <p><strong>Имя:</strong> ${order.full_name || '—'}</p>
-            <p><strong>Email:</strong> ${order.email || '—'}</p>
-            <p><strong>Телефон:</strong> ${order.phone || '—'}</p>
-            <p><strong>Адрес доставки:</strong> ${order.delivery_address || '—'}</p>
-            <p><strong>Комментарий:</strong> ${order.comment || '—'}</p>
-            <p><strong>Время доставки:</strong> ${order.delivery_type === 'now' ? 'Как можно скорее' : (order.delivery_time ? order.delivery_time.slice(0, 5) : '—')}</p>
-            <hr class="modal-divider">
-            <p><strong>Состав заказа:</strong></p>
-        `;
+        const viewGrid = document.createElement('div');
+        viewGrid.classList.add('order-view-grid');
+
+        const addRow = (labelText, valueText = '—') => {
+            const label = document.createElement('div');
+            label.classList.add('view-label');
+            label.textContent = labelText;
+
+            const value = document.createElement('div');
+            value.classList.add('view-value');
+            value.textContent = valueText;
+
+            viewGrid.appendChild(label);
+            viewGrid.appendChild(value);
+        };
+
+        const addFullLabel = (text) => {
+            const div = document.createElement('div');
+            div.classList.add('view-section-title');
+            div.textContent = text;
+            viewGrid.appendChild(div);
+        };
+
+        const addFullValue = (element) => {
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('view-value-full');
+            wrapper.appendChild(element);
+            viewGrid.appendChild(wrapper);
+        };
+
+        // 1. Дата оформления
+        addRow('Дата оформления:', new Date(order.created_at).toLocaleString('ru-RU'));
+
+        // 2. Раздел "Доставка"
+        addFullLabel('Доставка');
+
+        addRow('Имя получателя:', order.full_name || '—');
+        addRow('Адрес доставки:', order.delivery_address || '—');
+        addRow('Время доставки:', order.delivery_type === 'now' ? 'Как можно скорее' : (order.delivery_time ? order.delivery_time.slice(0, 5) : '—'));
+        addRow('Телефон:', order.phone || '—');
+        addRow('Email:', order.email || '—');
+
+        // 3. Раздел "Комментарий"
+        addFullLabel('Комментарий');
+
+        const commentValue = document.createElement('div');
+        commentValue.classList.add('view-comment');
+        commentValue.textContent = order.comment || '—';
+        addFullValue(commentValue);
+
+        // 4. Раздел "Состав заказа"
+        addFullLabel('Состав заказа');
 
         const dishesList = document.createElement('ul');
-        dishesList.classList.add('order-dishes-list');
+        dishesList.classList.add('order-dishes-list', 'view-dishes-list');
 
         const dishEntries = [
             { id: order.soup_id, category: 'Суп' },
@@ -78,13 +128,17 @@ function showOrderModal(order, mode) {
         ];
 
         let hasDishes = false;
+        let totalPrice = 0;
+
         dishEntries.forEach(entry => {
             if (entry.id) {
                 const dish = findDishById(entry.id);
                 if (dish) {
                     hasDishes = true;
+                    totalPrice += dish.price;
+
                     const li = document.createElement('li');
-                    li.innerHTML = `<strong>${entry.category}:</strong> ${dish.name} — ${dish.price}₽`;
+                    li.textContent = `${entry.category}: ${dish.name} — ${dish.price}₽`;
                     dishesList.appendChild(li);
                 }
             }
@@ -96,21 +150,19 @@ function showOrderModal(order, mode) {
             dishesList.appendChild(li);
         }
 
-        content.appendChild(dishesList);
+        addFullValue(dishesList);
 
-        let totalPrice = 0;
-        dishEntries.forEach(entry => {
-            if (entry.id) {
-                const dish = findDishById(entry.id);
-                if (dish) totalPrice += dish.price;
-            }
-        });
+        // 5. Итоговая стоимость
+        const totalLabel = document.createElement('div');
+        totalLabel.classList.add('total-label');
+        totalLabel.innerHTML = `<strong>Стоимость: ${totalPrice}₽</strong>`;
 
-        const totalP = document.createElement('p');
-        totalP.classList.add('order-total-price');
-        totalP.innerHTML = `<strong>Итого: ${totalPrice}₽</strong>`;
-        content.appendChild(totalP);
 
+        // Добавляем грид в модалку
+        content.appendChild(viewGrid);
+        content.appendChild(totalLabel);
+
+        // Кнопка Ок
         const okBtn = document.createElement('button');
         okBtn.textContent = 'Ок';
         okBtn.classList.add('btn', 'btn-secondary');
@@ -120,50 +172,92 @@ function showOrderModal(order, mode) {
 
     // === РЕЖИМ РЕДАКТИРОВАНИЯ (edit) ===
     if (mode === 'edit') {
-        const form = document.createElement('form');
-        form.classList.add('order-edit-form');
+        const editGrid = document.createElement('div');
+        editGrid.classList.add('order-view-grid'); // тот же грид, что и в view
 
-        const fields = [
-            { label: 'Имя', name: 'full_name', type: 'text', value: order.full_name || '' },
-            { label: 'Email', name: 'email', type: 'email', value: order.email || '' },
-            { label: 'Телефон', name: 'phone', type: 'tel', value: order.phone || '' },
-            { label: 'Адрес доставки', name: 'delivery_address', type: 'text', value: order.delivery_address || '' },
-            { label: 'Комментарий', name: 'comment', type: 'textarea', value: order.comment || '' }
-        ];
+        const addRow = (labelText, inputElement) => {
+            const label = document.createElement('div');
+            label.classList.add('view-label');
+            label.textContent = labelText;
 
-        fields.forEach(field => {
-            const label = document.createElement('label');
-            label.textContent = field.label;
-
-            let input;
-            if (field.type === 'textarea') {
-                input = document.createElement('textarea');
-                input.rows = 3;
+            const wrapper = document.createElement('div');
+            wrapper.classList.add('view-value');
+            if (typeof inputElement === 'string') {
+                wrapper.textContent = inputElement;  // для текста (не инпута)
             } else {
-                input = document.createElement('input');
-                input.type = field.type;
+                wrapper.appendChild(inputElement);
             }
-            input.name = field.name;
-            input.value = field.value;
-            input.required = true;
+            editGrid.appendChild(label);
+            editGrid.appendChild(wrapper);
+        };
 
-            form.appendChild(label);
-            form.appendChild(input);
-        });
+        const addFullLabel = (text) => {
+            const div = document.createElement('div');
+            div.classList.add('view-section-title');
+            div.textContent = text;
+            editGrid.appendChild(div);
+        };
 
-        // Время доставки
-        const deliveryTypeLabel = document.createElement('label');
-        deliveryTypeLabel.textContent = 'Время доставки';
+        addRow('Дата оформления:', new Date(order.created_at).toLocaleString('ru-RU'));
 
-        const radioContainer = document.createElement('div');
-        radioContainer.classList.add('delivery-type-radio');
+        // === Раздел "Доставка" ===
+        addFullLabel('Доставка');
+
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.classList.add('edit-input');
+        nameInput.value = order.full_name || '';
+        nameInput.required = true;
+        addRow('Имя получателя:', nameInput);
+
+        const addressInput = document.createElement('input');
+        addressInput.type = 'text';
+        addressInput.classList.add('edit-input');
+        addressInput.value = order.delivery_address || '';
+        addressInput.required = true;
+        addRow('Адрес доставки:', addressInput);
+
+        const phoneInput = document.createElement('input');
+        phoneInput.type = 'tel';
+        phoneInput.classList.add('edit-input');
+        phoneInput.value = order.phone || '';
+        phoneInput.required = true;
+        addRow('Телефон:', phoneInput);
+
+        const emailInput = document.createElement('input');
+        emailInput.type = 'email';
+        emailInput.classList.add('edit-input');
+        emailInput.value = order.email || '';
+        emailInput.required = true;
+        addRow('Email:', emailInput);
+
+        // === Раздел "Комментарий" ===
+        addFullLabel('Комментарий');
+
+        const commentTextarea = document.createElement('textarea');
+        commentTextarea.classList.add('edit-textarea');
+        commentTextarea.value = order.comment || '';
+
+        const commentWrapper = document.createElement('div');
+        commentWrapper.classList.add('view-value-full');
+        commentWrapper.appendChild(commentTextarea);
+        editGrid.appendChild(commentWrapper);
+
+        // === Раздел "Время доставки" ===
+        addFullLabel('Время доставки');
+
+        const deliveryFull = document.createElement('div');
+        deliveryFull.classList.add('view-value-full');
+
+        const radioGroup = document.createElement('div');
+        radioGroup.classList.add('delivery-radio-group');
 
         const nowLabel = document.createElement('label');
         const nowRadio = document.createElement('input');
         nowRadio.type = 'radio';
         nowRadio.name = 'delivery_type';
         nowRadio.value = 'now';
-        if (order.delivery_type === 'now') nowRadio.checked = true;
+        if (order.delivery_type !== 'by_time') nowRadio.checked = true;
         nowLabel.appendChild(nowRadio);
         nowLabel.appendChild(document.createTextNode(' Как можно скорее'));
 
@@ -176,39 +270,41 @@ function showOrderModal(order, mode) {
         timeLabel.appendChild(timeRadio);
         timeLabel.appendChild(document.createTextNode(' Ко времени'));
 
-        radioContainer.appendChild(nowLabel);
-        radioContainer.appendChild(timeLabel);
+        radioGroup.appendChild(nowLabel);
+        radioGroup.appendChild(timeLabel);
 
-        const timeInputContainer = document.createElement('div');
-        timeInputContainer.classList.add('delivery-time-field');
-        timeInputContainer.style.display = order.delivery_type === 'by_time' ? 'block' : 'none';
+        const timeInputWrapper = document.createElement('div');
+        timeInputWrapper.classList.add('delivery-time-input');
+        timeInputWrapper.style.display = order.delivery_type === 'by_time' ? 'block' : 'none';
 
         const timeInput = document.createElement('input');
         timeInput.type = 'time';
-        timeInput.name = 'delivery_time';
+        timeInput.classList.add('edit-input');
         timeInput.min = '07:00';
         timeInput.max = '23:00';
         timeInput.step = '300';
         timeInput.value = order.delivery_time ? order.delivery_time.slice(0, 5) : '';
-        timeInput.required = order.delivery_type === 'by_time';
 
-        timeInputContainer.appendChild(timeInput);
+        timeInputWrapper.appendChild(timeInput);
 
+        // Переключение видимости поля времени
         nowRadio.addEventListener('change', () => {
-            timeInputContainer.style.display = 'none';
+            timeInputWrapper.style.display = 'none';
             timeInput.required = false;
         });
         timeRadio.addEventListener('change', () => {
-            timeInputContainer.style.display = 'block';
+            timeInputWrapper.style.display = 'block';
             timeInput.required = true;
         });
 
-        form.appendChild(deliveryTypeLabel);
-        form.appendChild(radioContainer);
-        form.appendChild(timeInputContainer);
+        deliveryFull.appendChild(radioGroup);
+        deliveryFull.appendChild(timeInputWrapper);
+        editGrid.appendChild(deliveryFull);
 
-        content.appendChild(form);
+        // Добавляем в модалку
+        content.appendChild(editGrid);
 
+        // Кнопки
         const cancelBtn = document.createElement('button');
         cancelBtn.textContent = 'Отмена';
         cancelBtn.type = 'button';
@@ -224,21 +320,23 @@ function showOrderModal(order, mode) {
 
         saveBtn.onclick = async () => {
             const payload = {
-                full_name: form.querySelector('[name="full_name"]').value.trim(),
-                email: form.querySelector('[name="email"]').value.trim(),
-                phone: form.querySelector('[name="phone"]').value.trim(),
-                delivery_address: form.querySelector('[name="delivery_address"]').value.trim(),
-                comment: form.querySelector('[name="comment"]').value.trim(),
-                delivery_type: form.querySelector('[name="delivery_type"]:checked').value,
+                full_name: nameInput.value.trim(),
+                delivery_address: addressInput.value.trim(),
+                phone: phoneInput.value.trim(),
+                email: emailInput.value.trim(),
+                comment: commentTextarea.value.trim(),
+                delivery_type: document.querySelector('input[name="delivery_type"]:checked').value,
             };
 
             if (payload.delivery_type === 'by_time') {
-                const timeValue = form.querySelector('[name="delivery_time"]').value;
+                const timeValue = timeInput.value;
                 if (!timeValue) {
                     showModalWindow('Укажите время доставки');
                     return;
                 }
                 payload.delivery_time = timeValue + ':00';
+            } else {
+                payload.delivery_time = null;
             }
 
             const updateUrl = `https://edu.std-900.ist.mospolytech.ru/labs/api/orders/${order.id}?api_key=${API_KEY}`;
@@ -246,7 +344,6 @@ function showOrderModal(order, mode) {
             try {
                 saveBtn.disabled = true;
                 saveBtn.textContent = 'Сохраняем...';
-
                 const response = await fetch(updateUrl, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -259,9 +356,7 @@ function showOrderModal(order, mode) {
                 }
 
                 document.body.removeChild(overlay);
-                showModalWindow('Заказ успешно изменён! 🎉');
                 loadOrdersFromModal();
-
             } catch (error) {
                 showModalWindow('Ошибка сохранения: ' + error.message);
                 console.error(error);
@@ -276,8 +371,7 @@ function showOrderModal(order, mode) {
     if (mode === 'delete') {
         content.innerHTML = `
             <p class="delete-confirm-text">
-                Вы уверены, что хотите <strong>удалить заказ №${order.id}</strong>?<br><br>
-                Это действие нельзя отменить.
+                Вы уверены, что хотите удалить заказ?
             </p>
         `;
 
@@ -288,7 +382,7 @@ function showOrderModal(order, mode) {
         buttons.appendChild(cancelBtn);
 
         const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'Да, удалить';
+        deleteBtn.textContent = 'Да';
         deleteBtn.classList.add('btn', 'btn-danger');
         buttons.appendChild(deleteBtn);
 
@@ -307,7 +401,6 @@ function showOrderModal(order, mode) {
                 }
 
                 document.body.removeChild(overlay);
-                showModalWindow('Заказ успешно удалён 🗑️');
                 loadOrdersFromModal();
 
             } catch (error) {
