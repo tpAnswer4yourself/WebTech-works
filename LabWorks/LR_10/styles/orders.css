@@ -1,0 +1,302 @@
+.empty-orders-message {
+    font-size: 1.5rem;
+    text-align: center;
+    margin: 2rem 0rem;
+    padding: 3rem 2rem;
+    background-color: rgb(242, 242, 242);
+    border-radius: 35px;
+}
+
+.empty-orders-message p {
+    color: rgb(43, 43, 43);
+    padding-bottom: 1rem;
+}
+
+.empty-orders-message p a {
+    font-size: larger;
+    text-decoration: none;
+    font-weight: 500;
+    color: rgb(47, 47, 47);
+    transition: 0.1s ease-in;
+}
+
+.empty-orders-message p a:hover {
+    color: tomato;
+    text-decoration: underline;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-left: 1px solid rgb(170, 170, 170);
+    border-right: 1px solid rgb(170, 170, 170);
+}
+
+.orders-table td:nth-child(3),
+.orders-table th:nth-child(3) {
+    text-align: left;
+}
+
+tr:first-child {
+    font-weight: normal;
+}
+
+thead {
+    background-color: rgb(255, 218, 211);
+}
+
+tbody tr {
+    transition: 0.1s ease-in;
+}
+
+tbody tr:hover {
+    background-color: rgb(253, 245, 244);
+}
+
+td, th {
+    border: none;
+    padding-top: 1.75rem;
+    padding-bottom: 1.75rem;
+    border-top: 1px solid rgb(170, 170, 170);
+    border-bottom: 1px solid rgb(170, 170, 170);
+}
+
+td:first-child {
+    width: 2rem;
+}
+
+/* Последний столбец с действиями */
+td:last-child {
+    width: 15rem;
+    padding: 0.5rem 0;
+}
+
+.actions-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    align-items: center;
+    height: 100%;
+}
+
+.actions-wrapper i {
+    font-size: 1.5rem;
+    color: #333;
+    transition: all 0.2s ease;
+}
+
+.actions-wrapper i:hover {
+    cursor: pointer;
+    transform: translateY(-4px) scale(1.15);
+    color: tomato;
+}
+
+/*  ---------------------СТИЛИЗАЦИЯ МОДАЛЬНЫХ ОКОН ----------------------------------------------------- */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.066);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal-window {
+    background-color: white;
+    color: black;
+    border-radius: 35px;
+    font-size: 1.5rem;
+    border: 2px solid black;
+    filter: drop-shadow(0px 0px 100px rgba(0, 0, 0, 0.456));
+    max-width: 100%;
+    min-width: 40rem;
+    padding: 1rem 3rem;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.9rem;
+}
+
+.modal-close {
+    font-size: 2.5rem;
+    font-weight: 400;
+    cursor: pointer;
+    color: #555;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    color: rgb(0, 0, 0);
+    transform: scale(1.1);
+}
+
+.modal-divider {
+    margin: 1rem 0rem;
+    border-top: 2px solid rgb(200, 200, 200);
+}
+
+.modal-buttons {
+    margin-bottom: auto;
+    margin-top: 2rem;
+    display: flex;
+    justify-content: right;
+}
+
+.btn {
+    width: min-content;
+    border: 2px solid black;
+    font-size: 1.2rem;
+    border-radius: 10px;
+    padding: 0.3rem 0.7rem;
+    transition: 0.3s ease;
+    margin-left: 1rem;
+
+}
+
+.btn:hover {
+    cursor: pointer;
+}
+
+.btn-secondary {
+    background-color: rgb(216, 216, 216);
+}
+
+.btn-secondary:hover {
+    background-color: rgb(180, 180, 180);
+}
+
+.btn-danger {
+    background-color: rgb(255, 86, 86);
+}
+
+.btn-danger:hover {
+    background-color: rgb(253, 23, 23);
+}
+
+.btn-primary {
+    background-color: rgb(88, 255, 91);
+}
+
+.btn-primary:hover {
+    background-color: rgb(18, 238, 22);
+}
+
+/* Стили для режима просмотра и редактирования */
+.order-view-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem 1rem;
+    font-size: 1.15rem;
+    margin: 0rem 0;
+    align-items: start;
+}
+
+.view-label {
+    margin: 0rem 0rem;
+}
+
+.view-section-title {
+    grid-column: 1 / -1;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 1.2rem 0 0.8rem 0;
+    color: #000;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 0.4rem;
+}
+
+.view-value-full {
+    grid-column: 1 / -1;
+    margin-bottom: 0rem;
+}
+
+.view-comment {
+    font-size: 1.25rem;
+    line-height: 1.5;
+    white-space: pre-wrap; /* для сохранения переноса строк */
+}
+
+.view-dishes-list {
+    margin: 0;
+}
+
+.view-dishes-list li {
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+    list-style: none;
+}
+
+.total-label {
+    font-size: 1.2rem;
+    margin-top: 0.5rem;
+    text-align: left;
+}
+
+
+
+/* Инпуты и textarea*/
+.edit-input,
+.edit-textarea {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    font-size: 1.15rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    transition: border 0.2s ease;
+    background-color: #fff;
+}
+
+.edit-input:focus,
+.edit-textarea:focus {
+    outline: none;
+    border-color: #000;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.edit-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Радиокнопки времени доставки */
+.delivery-radio-group {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.15rem;
+    align-items: center;
+}
+
+.delivery-radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.delivery-radio-group input[type="radio"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+}
+
+/* Поле времени — только когда выбрано rhо времени" */
+.delivery-time-input {
+    display: block;
+}
